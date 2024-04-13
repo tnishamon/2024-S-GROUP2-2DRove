@@ -4,10 +4,10 @@ on:
   # Replace with whatever branch you're working on :)
   push: 
     branches: 
-      - main
+      - fixArtifacts
   pull_request:
     branches:
-      - main
+      - fixArtifacts
 
 jobs:
   runTests:
@@ -39,11 +39,18 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           unityVersion: 2022.3.19f1
           testMode: playmode
-          customParameters: -debugCodeOptimization -enableCodeCoverage -coverageResultsPath ./coverage-results -coverageOptions generateHtmlReport
+          customParameters: -debugCodeOptimization -enableCodeCoverage -coverageResultsPath ./coverage-results -coverageOptions generateAdditionalMetrics
       # Archive our code coverage results in a zip file (will try to output it to actions later)
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
           path: 2DRove/CodeCoverage
-            
+
+      - name: Upload XML report to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          name: PlayMode
+          flags: automated
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage-results/**/*.xml
